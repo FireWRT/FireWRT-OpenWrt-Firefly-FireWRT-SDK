@@ -1,0 +1,13 @@
+Index: linux-3.18.11/arch/mips/ralink/Kconfig
+===================================================================
+--- linux-3.18.11.orig/arch/mips/ralink/Kconfig	2015-04-28 17:30:50.631568808 +0800
++++ linux-3.18.11/arch/mips/ralink/Kconfig	2015-04-28 17:32:10.167567161 +0800
+@@ -46,6 +46,8 @@
+ 		select SYS_SUPPORTS_MULTITHREADING
+ 		select SYS_SUPPORTS_SMP
+ 		select SYS_SUPPORTS_MIPS_CMP
++		select SYS_SUPPORTS_HIGHMEM
++		select HIGHMEM
+ 		select IRQ_GIC
+ 		select HW_HAS_PCI
+ 
