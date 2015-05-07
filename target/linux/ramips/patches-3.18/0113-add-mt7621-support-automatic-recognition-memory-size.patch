@@ -1,0 +1,50 @@
+Index: linux-3.18.11/arch/mips/include/asm/mach-ralink/mt7621.h
+===================================================================
+--- linux-3.18.11.orig/arch/mips/include/asm/mach-ralink/mt7621.h	2015-05-06 17:46:36.606144740 +0800
++++ linux-3.18.11/arch/mips/include/asm/mach-ralink/mt7621.h	2015-05-06 17:50:16.362151259 +0800
+@@ -29,7 +29,7 @@
+ 
+ #define MT7621_DRAM_BASE                0x0
+ #define MT7621_DDR2_SIZE_MIN		32
+-#define MT7621_DDR2_SIZE_MAX		256
++#define MT7621_DDR2_SIZE_MAX		512
+ 
+ #define MT7621_CHIP_NAME0		0x3637544D
+ #define MT7621_CHIP_NAME1		0x20203132
+Index: linux-3.18.11/arch/mips/kernel/setup.c
+===================================================================
+--- linux-3.18.11.orig/arch/mips/kernel/setup.c	2015-04-04 10:46:37.000000000 +0800
++++ linux-3.18.11/arch/mips/kernel/setup.c	2015-05-07 09:30:27.138152614 +0800
+@@ -131,8 +131,12 @@
+ {
+ 	void *dm = &detect_magic;
+ 	phys_t size;
+-
+-	for (size = sz_min; size < sz_max; size <<= 1) {
++#if defined(CONFIG_SOC_MT7621)
++	phys_t low_mem_size   = 0x1c000000;
++	phys_t high_mem_start = 0x20000000;
++	phys_t high_mem_size  = 0;
++#endif
++	for (size = sz_min; size < sz_max; size <<= 1) {
+ 		if (!memcmp(dm, dm + size, sizeof(detect_magic)))
+ 			break;
+ 	}
+@@ -142,8 +146,15 @@
+ 		(unsigned long long) start,
+ 		((unsigned long long) sz_min) / SZ_1M,
+ 		((unsigned long long) sz_max) / SZ_1M);
+-
+-	add_memory_region(start, size, BOOT_MEM_RAM);
++#if defined(CONFIG_SOC_MT7621)
++       low_mem_size = (size > low_mem_size)?low_mem_size:size;
++       high_mem_size = size - low_mem_size;
++	add_memory_region(start,low_mem_size, BOOT_MEM_RAM);
++       if(high_mem_size > 0)
++		add_memory_region(high_mem_start,high_mem_size, BOOT_MEM_RAM);
++#else
++	add_memory_region(start, size, BOOT_MEM_RAM);
++#endif
+ }
+ 
+ static void __init print_memory_map(void)
